@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import api from '../../../../../../api/api';
+import api from '../../../../../../services/api';
 import { DataGrid } from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
 import UserEditModal from './UserEditModal'
@@ -23,7 +23,7 @@ export default function Users() {
       setUsers(response.data)
     }
     loadUsers();
-  }, []);
+  }, [userSelected]);
 
 
   //Return data of a selected user

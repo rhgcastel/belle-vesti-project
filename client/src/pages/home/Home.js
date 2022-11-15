@@ -1,11 +1,12 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useEffect } from 'react';
 import Body from './components/Body';
 import CssBaseline from '@mui/material/CssBaseline';
 import Header from './components/Header';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Footer from './components/Footer';
 import Title from './components/Title';
-import { shoppingCartReducer } from '../../context/Reducers'
+import { shoppingCartReducer } from '../../reducers/ShoppingReducers';
+import api from '../../services/api';
 
 const theme = createTheme({
   palette: {

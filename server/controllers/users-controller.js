@@ -17,18 +17,18 @@ passwordSchema
 //Create an user
 const createUser = async (req, res) => {
   const { firstName, lastName, email, type, password } = req.body;
-    let user = await User.findOne({ email });
-    if (user) 
-      return res.status(500).json("This email address is already being used.");
-    if (!emailValidator.validate(email)) 
-      return res.status(400).json("Please, enter a valid email address.");
-    if (!passwordSchema.validate(req.body.password)) 
-      return res.status(400).json(
-        "Password must contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, 2 digits, and no spaces."
-      );
-    let data = { firstName, lastName, email, type, password };
-    await User.create(data);
-    return res.status(201).json('New user successfully created.')
+  let user = await User.findOne({ email });
+  if (user)
+    return res.status(500).json("This email address is already being used. Try to login instead.");
+  if (!emailValidator.validate(email))
+    return res.status(400).json("Please, enter a valid email address.");
+  if (!passwordSchema.validate(req.body.password))
+    return res.status(400).json(
+      "Password must contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, 2 digits, and no spaces."
+    );
+  let data = { firstName, lastName, email, type, password };
+  await User.create(data);
+  return res.status(201).json('New user successfully created.')
 };
 
 //Request a list with all the registered users
@@ -37,7 +37,7 @@ const getUsersList = async (req, res) => {
     const usersList = await User.find();
     res.json(usersList)
   } catch (err) {
-    res.status(500).json({message: err.message})
+    res.status(500).json({ message: err.message })
   }
 };
 
@@ -66,7 +66,7 @@ const deleteUser = async (req, res) => {
     if (user) return res.status(200).json('User deleted.');
     return res.status(404).json('Id not found.')
   } catch (err) {
-    res.status(500).json({message: err.message})
+    res.status(500).json({ message: err.message })
   }
 };
 
@@ -74,26 +74,45 @@ const deleteUser = async (req, res) => {
 const userLogin = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
-  if (!user) return res.status(400).json("No user registered with that email address.");
   const matchPasswords = await bcrypt.compare(password, user.password);
   if (matchPasswords) {
-    const accessToken = jwt.sign({ name: user }, process.env.ACCESS_TOKEN_SECRET);
-    // res.cookie("token", token, { httpOnly: true });
-    return res.status(200).json(accessToken);
-  } else return res.status(400).json("The password entered is incorrect.");
+    const payload = {
+      id: user._id,
+      email: user.email,
+      first_name: user.firstName,
+      type: user.type
+    }
+    const accessToken = jwt.sign(
+      payload,
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: 86400 },
+    )
+    res.status(200).json({auth: true, accessToken, payload })
+  } else {
+    return res.status(401).json("The email or password entered are incorrect.");
+  }
 };
 
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorisation']
-  const token = authHeader && authHeader.split(' ')[1]
-  if (!token) return res.status(401)
+  // const token = req.headers['x-access-token']?.split(' ')[1]
+  console.log('ok')
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) return res.status(403)
-    req.user = user
-    next()
-  })
+  // if (!token) return res.status(401).json({ message: 'Unauthorised.', isLoggedIn: false });
+
+  // jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+  //   if (err) return res.status(401).json({ message: 'Failed to Authenticate.', isLoggedIn: false })
+  //   req.user = {};
+  //   req.user.id = decoded.id;
+  //   req.user.email = decoded.email
+  //   next()
+  // })
 }
+
+const userAuthentication = (req, res) => {
+  res.status(200).json({ isLoggedIn: true, user: req.user.email })
+}
+
+
 
 module.exports = {
   createUser,
@@ -102,4 +121,6 @@ module.exports = {
   updateUser,
   deleteUser,
   userLogin,
+  authenticateToken,
+  userAuthentication
 };

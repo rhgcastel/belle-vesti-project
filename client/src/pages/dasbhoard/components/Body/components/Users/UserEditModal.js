@@ -10,7 +10,7 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
-import api from "../../../../../../api/api";
+import api from "../../../../../../services/api";
 import { warningBox } from "../../../../../components/WarningBox";
 
 const style = {
@@ -89,7 +89,6 @@ const UserEditModal = forwardRef((props, ref) => {
                         <Select
                             id="uncontrolled-native"
                             defaultValue={props.selection.map((e) => e.type)}
-                            value={user.type}
                             onChange={(e) => setUser({ type: e.target.value })}
                         >
                             <MenuItem value={"Admin"}>Admin</MenuItem>

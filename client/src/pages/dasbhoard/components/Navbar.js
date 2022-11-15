@@ -21,15 +21,11 @@ import { styled } from '@mui/material/styles';
 
 export default function Navbar() {
   const Drawer = styled(MuiDrawer)(
-    ({ theme }) => ({
+    () => ({
       '& .MuiDrawer-paper': {
         position: 'relative',
         whiteSpace: 'nowrap',
         width: 240,
-        transition: theme.transitions.create('width', {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.enteringScreen,
-        }),
         boxSizing: 'border-box',
         }
       })
@@ -39,7 +35,7 @@ export default function Navbar() {
     <React.Fragment>
 
       {/* Home Button */}
-      <Link to='' style={{color: '#1f1d1e'}}>
+      <Link to='' style={{ color: '#1f1d1e', textDecoration: 'none' }}>
       <ListItemButton>
         <ListItemIcon>
           <DashboardIcon />
@@ -49,7 +45,7 @@ export default function Navbar() {
       </Link>
 
       {/* Messages Button */}
-      <Link to='messages' style={{color: '#1f1d1e'}}>
+      <Link to='messages' style={{ color: '#1f1d1e', textDecoration: 'none' }}>
       <ListItemButton>
         <ListItemIcon>
           <EmailIcon />
@@ -59,7 +55,7 @@ export default function Navbar() {
       </Link>
 
       {/* Orders Button */}
-      <Link to='orders' style={{color: '#1f1d1e'}}>
+      <Link to='orders' style={{ color: '#1f1d1e', textDecoration: 'none' }}>
       <ListItemButton>
         <ListItemIcon>
           <ShoppingCartIcon />
@@ -69,7 +65,7 @@ export default function Navbar() {
       </Link>
 
       {/* Items Button */}
-      <Link to='items-list' style={{color: '#1f1d1e'}}>
+      <Link to='items-list' style={{ color: '#1f1d1e', textDecoration: 'none' }}>
       <ListItemButton>
         <ListItemIcon>
           <InventoryIcon />
@@ -79,7 +75,7 @@ export default function Navbar() {
       </Link>
 
       {/* Users Button */}
-      <Link to='users-list' style={{color: '#1f1d1e'}}>
+      <Link to='users-list' style={{ color: '#1f1d1e', textDecoration: 'none' }}>
       <ListItemButton>
         <ListItemIcon>
           <PeopleIcon />
@@ -94,7 +90,7 @@ export default function Navbar() {
   const secondaryListItems = (
     <React.Fragment>
       {/* Settings button */}
-      <Link to='settings' style={{color: '#1f1d1e'}}>
+      <Link to='settings' style={{ color: '#1f1d1e', textDecoration: 'none' }}>
       <ListItemButton>
         <ListItemIcon>
           <SettingsIcon />

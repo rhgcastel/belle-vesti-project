@@ -30,21 +30,21 @@ const Settings = () => {
                         id="outlined-required"
                         label="Password" />
                 </Stack>
-                <div style={{ display: 'flex', flexDirection: 'row', gap: 10}}>
+                <div style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
                     <Button
                         variant="contained"
                         style={{ marginTop: 20, height: 40 }}
                     >Edit
                     </Button>
-                    <Button
-                        variant="contained"
-                        color='error'
-                        style={{ marginTop: 20, height: 40  }}
-                    >Delete Account
-                    </Button>
                 </div>
-
             </div>
+            <Button
+                    variant="contained"
+                    color='error'
+                    size='small'
+                    style={{ marginTop: 20, float: 'right' }}
+                >Delete Account
+                </Button>
         </div>
     )
 }

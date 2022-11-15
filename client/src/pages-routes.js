@@ -13,6 +13,8 @@ import Items from './pages/dasbhoard/components/Body/components/Items/Items';
 import Settings from './pages/dasbhoard/components/Body/components/Settings';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
+import Unauthorized from './pages/Unauthorized';
+import ProtectedRoute from './services/ProtectedRoute';
 
 export default function PagesRoutes() {
     return (
@@ -39,19 +41,24 @@ export default function PagesRoutes() {
                 closeOnClick={false}
             />
             <Routes>
+                {/* Public Routes */}
                 <Route path='/' element={<Home />} />
-                <Route path='/login' element={<Login />} />
-                <Route path='/sign-up' element={<SignUp />} />
+                <Route path='login' element={<Login />} />
+                <Route path='sign-up' element={<SignUp />} />
+                <Route path='unauthorized' element={<Unauthorized />} />
 
-                <Route path='dashboard' element={<Dashboard />}>
-                    <Route path='messages' element={<Messages />} />
-                    <Route path='orders' element={<Orders />} />
-                    <Route path='items-list' element={<Items />} />
-                    <Route path='users-list' element={<Users />} />
-                    <Route path='settings' element={<Settings />} />
+                <Route path='/*' element={<ProtectedRoute />} >
+                    <Route path='dashboard' element={<Dashboard />}>
+                        <Route path='messages' element={<Messages />} />
+                        <Route path='orders' element={<Orders />} />
+                        <Route path='items-list' element={<Items />} />
+                        <Route path='users-list' element={<Users />} />
+                        <Route path='settings' element={<Settings />} />
+                    </Route>
+
                 </Route>
 
             </Routes>
-        </BrowserRouter>
+        </BrowserRouter >
     )
 }

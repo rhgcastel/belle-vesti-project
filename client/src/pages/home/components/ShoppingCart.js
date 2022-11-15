@@ -8,6 +8,7 @@ import MenuItem from '@mui/material/MenuItem';
 import ShoppingCartMenu from './ShoppingCartMenu';
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
+import { MenuList } from '@mui/material';
 
 function ShoppingCart({ value }) {
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -48,7 +49,7 @@ function ShoppingCart({ value }) {
                 }}
             >
                 {value.state.cartQty === 0
-                    ? <MenuItem><Typography>Your cart is empty</Typography></MenuItem>
+                    ? <Typography variant="subtitle1" component='h2' style={{ fontWeight: 600, margin: 20 }}>Your cart is empty</Typography>
                     :
                     <div>
                         <IconButton style={{ position: 'relative', left: 370 }} onClick={handleClose} >

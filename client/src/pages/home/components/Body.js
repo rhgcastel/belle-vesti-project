@@ -7,7 +7,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import api from '../../../api/api';
+import api from '../../../services/api';
 import Chip from '@mui/material/Chip';
 
 function Body({ itemDetails, itemFunctions, prod, value }) {

@@ -8,7 +8,7 @@ import Modal from "@mui/material/Modal";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import api from "../../../../../../api/api";
+import api from "../../../../../../services/api";
 import { warningBox } from "../../../../../components/WarningBox";
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';

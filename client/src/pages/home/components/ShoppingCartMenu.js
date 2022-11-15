@@ -27,16 +27,13 @@ function ShoppingCartMenu({ value }) {
                 p: 2,
                 key: index,
                 margin: 'auto',
-                width: 380,
-                height: 150,
-                flexGrow: 1,
-                backgroundColor: (theme) =>
-                  theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+                width: 370,
+                height: 160,
               }}
             >
-              <Grid container spacing={2} sx={{ height: '100%', width: '100%', objectFit: 'contain' }}>
+              <Grid container spacing={2} sx={{ height: '100%', width: '100%' }}>
                 <Grid item>
-                  <ButtonBase sx={{ width: 80, height: 80 }}>
+                  <ButtonBase sx={{ width: 80, height: 80}}>
                     <Img alt="complex" src={item.image} />
                   </ButtonBase>
                 </Grid>

@@ -1,20 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
+import LinkMUI from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import api from '../../api/api';
+import api from '../../services/api';
 import { warningBox } from '../components/WarningBox';
 import Copyright from '../components/Copyright';
+import useAuth from '../../hooks/useAuth';
 
 const theme = createTheme({
   palette: {
@@ -29,18 +31,36 @@ export default function Login({ setToken }) {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [showPassword, setShowPassword] = useState(false);
-  const [checked, setChecked] = React.useState(false);
+  const [checked, setChecked] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const { setAuth } = useAuth();
+
+  // useEffect(() => {
+  //   if(!isLoggedIn && localStorage.getItem('&token') !== null) {
+  //     navigate(-1)
+  //   }
+  // }, [isLoggedIn, navigate])
+
+  const handleLogin = async (e) => {
     e.preventDefault();
     (!email || !password) && warningBox('Please, fill in all the fields.')
     const loginData = { email, password }
-      const response = await api.post('/api/user/login', loginData)
-      warningBox(response.data)
+    try {
+      const response = await api.post('/api/user/login', loginData, { headers: { 'Content-type': 'application/json' } })
+      console.log(response)
+      warningBox(`Welcome ${response.data.payload.first_name}`)
+      localStorage.setItem('&token', response.data.accessToken)
+      setIsLoggedIn(true)
+      navigate(-1)
+    } catch (err) {
+      warningBox(err.response.data)
+    }
   };
 
   const handleChange = (e) => {
-    setChecked(e.target.checked);
+    setChecked(e.target.checked); 
     !checked ? setShowPassword(true) : setShowPassword(false)
   };
 
@@ -62,7 +82,7 @@ export default function Login({ setToken }) {
           <Typography component='h1' variant='h5'>
             Login
           </Typography>
-          <Box component='form' onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <Box component='form' onSubmit={handleLogin} noValidate sx={{ mt: 1 }}>
             <TextField
               margin='normal'
               required
@@ -80,7 +100,7 @@ export default function Login({ setToken }) {
               fullWidth
               name='password'
               label='Password'
-              type={showPassword ? 'text' : 'password' }
+              type={showPassword ? 'text' : 'password'}
               id='password'
               autoComplete='current-password'
               onChange={e => setPassword(e.target.value)}
@@ -100,14 +120,14 @@ export default function Login({ setToken }) {
             </Button>
             <Grid container>
               <Grid item xs>
-                <Link href='#' variant='body2'>
+                <LinkMUI href='#' variant='body2'>
                   Forgot password?
-                </Link>
+                </LinkMUI>
               </Grid>
               <Grid item>
-                <Link href='sign-up' variant='body2'>
+                <LinkMUI href='sign-up' variant='body2'>
                   {`Don't have an account? Sign Up`}
-                </Link>
+                </LinkMUI>
               </Grid>
             </Grid>
           </Box>

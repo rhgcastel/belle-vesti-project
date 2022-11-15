@@ -72,7 +72,7 @@ export default function AccountMenu() {
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <Link to='dashboard' style={{color: '#1f1d1e'}}>
+        <Link to='dashboard' style={{ color: '#1f1d1e', textDecoration: 'none' }}>
         <MenuItem>
           <ListItemIcon>
             <DashboardIcon fontSize="small" />
@@ -82,7 +82,7 @@ export default function AccountMenu() {
         </Link>
 
         <Divider />
-        <Link to='dashboard/settings' style={{color: '#1f1d1e'}}>
+        <Link to='dashboard/settings' style={{ color: '#1f1d1e', textDecoration: 'none' }}>
         <MenuItem>
           <ListItemIcon>
             <Settings fontSize="small" />
