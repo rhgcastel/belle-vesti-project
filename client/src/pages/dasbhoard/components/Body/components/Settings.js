@@ -1,16 +1,32 @@
 import React from "react";
-import Button from '@mui/material/Button';
+import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import Typography from '@mui/material/Typography';
+import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 
 const Settings = () => {
     return (
-        <div sx={{ height: '100%', width: "100%" }}>
-            <Typography variant='h4' style={{ textAlign: 'center', marginBottom: 20 }}>Settings</Typography>
-            <Typography variant='h6' style={{ textAlign: 'center', marginBottom: 20 }}>Change Account Information</Typography>
+        <div sx={{ height: "100%", width: "100%" }}>
+            <Typography
+                variant="h4"
+                style={{ textAlign: "center", marginBottom: 20 }}
+            >
+                Settings
+            </Typography>
+            <Typography
+                variant="h6"
+                style={{ textAlign: "center", marginBottom: 20 }}
+            >
+                Change Account Information
+            </Typography>
 
-            <div style={{ alignItems: 'center', display: 'flex', flexDirection: 'column' }}>
+            <div
+                style={{
+                    alignItems: "center",
+                    display: "flex",
+                    flexDirection: "column",
+                }}
+            >
                 <Stack
                     component="form"
                     sx={{
@@ -20,33 +36,26 @@ const Settings = () => {
                     noValidate
                     autoComplete="off"
                 >
-                    <TextField
-                        id="outlined-required"
-                        label="First Name" />
-                    <TextField
-                        id="outlined-required"
-                        label="Last Name" />
-                    <TextField
-                        id="outlined-required"
-                        label="Password" />
+                    <TextField id="outlined-required" label="First Name" />
+                    <TextField id="outlined-required" label="Last Name" />
+                    <TextField id="outlined-required" label="Password" />
                 </Stack>
-                <div style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
-                    <Button
-                        variant="contained"
-                        style={{ marginTop: 20, height: 40 }}
-                    >Edit
+                <div style={{ display: "flex", flexDirection: "row", gap: 10 }}>
+                    <Button variant="contained" style={{ marginTop: 20, height: 40 }}>
+                        Edit
                     </Button>
                 </div>
             </div>
             <Button
-                    variant="contained"
-                    color='error'
-                    size='small'
-                    style={{ marginTop: 20, float: 'right' }}
-                >Delete Account
-                </Button>
+                variant="contained"
+                color="error"
+                size="small"
+                style={{ marginTop: 20, float: "right" }}
+            >
+                Delete Account
+            </Button>
         </div>
-    )
-}
+    );
+};
 
-export default Settings
+export default Settings;
