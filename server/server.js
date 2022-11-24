@@ -8,7 +8,7 @@ require('dotenv').config()
 const app = express();
 
 //Connection to the database
-mongoose.connect(process.env.MONGO_URI, (err) => {
+mongoose.connect(process.env.MONGODB_URI, (err) => {
     err
         ? console.log(err)
         : console.log("Connection to database has been established");
