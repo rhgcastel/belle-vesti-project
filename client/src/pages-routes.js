@@ -47,7 +47,7 @@ export default function PagesRoutes() {
         <Route path="sign-up" element={<SignUp />} />
         <Route path="unauthorized" element={<Unauthorized />} />
 
-        <Route path="/*" element={<ProtectedRoute />}>
+        {/* <Route path="/*" element={<ProtectedRoute />}> */}
           <Route path="dashboard" element={<Dashboard />}>
             <Route path="messages" element={<Messages />} />
             <Route path="orders" element={<Orders />} />
@@ -55,7 +55,7 @@ export default function PagesRoutes() {
             <Route path="users-list" element={<Users />} />
             <Route path="settings" element={<Settings />} />
           </Route>
-        </Route>
+        {/* </Route> */}
       </Routes>
     </BrowserRouter>
   );
