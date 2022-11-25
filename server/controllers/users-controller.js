@@ -93,21 +93,6 @@ const userLogin = async (req, res) => {
   }
 };
 
-const authenticateToken = (req, res, next) => {
-  // const token = req.headers['x-access-token']?.split(' ')[1]
-  console.log('ok')
-
-  // if (!token) return res.status(401).json({ message: 'Unauthorised.', isLoggedIn: false });
-
-  // jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-  //   if (err) return res.status(401).json({ message: 'Failed to Authenticate.', isLoggedIn: false })
-  //   req.user = {};
-  //   req.user.id = decoded.id;
-  //   req.user.email = decoded.email
-  //   next()
-  // })
-}
-
 const userAuthentication = (req, res) => {
   res.status(200).json({ isLoggedIn: true, user: req.user.email })
 }
@@ -121,6 +106,5 @@ module.exports = {
   updateUser,
   deleteUser,
   userLogin,
-  authenticateToken,
   userAuthentication
 };
