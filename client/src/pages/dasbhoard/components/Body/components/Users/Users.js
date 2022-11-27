@@ -14,6 +14,8 @@ export default function Users() {
   const [users, setUsers] = useState([]);
   const [selection, setSelection] = useState([]);
   const [userSelected, setUserSelected] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingMessage, setLoadingMessage] = useState();
 
   const openModalRef = useRef()
 
@@ -21,9 +23,27 @@ export default function Users() {
     const loadUsers = async () => {
       const response = await api.get('/api/users-list');
       setUsers(response.data)
+      setIsLoading(false)
     }
     loadUsers();
   }, [userSelected]);
+
+  useEffect(() => {
+    setLoadingMessage(<div style={{
+      "position": "relative",
+      "left": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "justify-content": "center",
+      "display": "flex",
+      "align-items": "center",
+    }}>
+      <img style={{ width: "50%" }} src='https://upload.wikimedia.org/wikipedia/commons/9/92/Loading_icon_cropped.gif' alt='Loading'></img>
+    </div>)
+    setTimeout(() => isLoading && setLoadingMessage(<Typography variant='subtitle1'>Oops, something went wrong</Typography>), 5000)
+  }, [setLoadingMessage, isLoading])
+
 
 
   //Return data of a selected user
@@ -93,7 +113,7 @@ export default function Users() {
         height: '100%',
         marginTop: 35,
       }}>
-        <Typography variant='subtitle2'>NO USERS TO DISPLAY</Typography>
+        {loadingMessage}
       </Box>
 
     )
