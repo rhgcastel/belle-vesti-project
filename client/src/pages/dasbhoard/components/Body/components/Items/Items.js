@@ -15,6 +15,8 @@ export default function Items() {
   const [items, setItems] = useState([]);
   const [selection, setSelection] = useState([]);
   const [itemSelected, setItemSelected] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingMessage, setLoadingMessage] = useState();
 
   const openEditModalRef = useRef()
   const openAddModalRef = useRef()
@@ -23,9 +25,26 @@ export default function Items() {
     const loadItems = async () => {
       const response = await api.get('/api/items-list');
       setItems(response.data)
+      setIsLoading(false)
     }
     loadItems();
   }, [])
+
+  useEffect(() => {
+    setLoadingMessage(<div style={{
+      "position": "relative",
+      "left": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "justify-content": "center",
+      "display": "flex",
+      "align-items": "center",
+    }}>
+      <img style={{ width: "50%" }} src='https://upload.wikimedia.org/wikipedia/commons/9/92/Loading_icon_cropped.gif' alt='Loading'></img>
+    </div>)
+    setTimeout(() => isLoading && setLoadingMessage(<Typography variant='subtitle1'>Oops, something went wrong</Typography>), 5000)
+  }, [setLoadingMessage, isLoading])
 
   //Return data of a selected item
   const getItemSelected = (selectId, item) => {
@@ -99,7 +118,7 @@ export default function Items() {
         height: '100%',
         marginTop: 35,
       }}>
-        <Typography variant='subtitle2'>NO ITEMS TO DISPLAY</Typography>
+        {loadingMessage}
       </Box>
 
     )

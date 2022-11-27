@@ -24,7 +24,22 @@ function Body({ itemDetails, itemFunctions, prod, value }) {
 
     return (
         <main>
+            {items.length <= 0 &&
+                <div style={{
+                    "position": "relative",
+                    "margin-top": 50,
+                    "left": 0,
+                    "top": 0,
+                    "right": 0,
+                    "bottom": 0,
+                    "display": "flex", 
+                    "justify-content": "center", 
+                    "align-items": "center"
+                }}>
+                    <img src='https://upload.wikimedia.org/wikipedia/commons/9/92/Loading_icon_cropped.gif' alt='Loading'></img>
+                </div>}
             <Container sx={{ py: 8 }} maxWidth="md">
+
                 <Grid container spacing={4} columns={12}>
                     {items.map((item, index) => (
                         <Grid item key={index} xs={8} sm={6} md={4}>
@@ -40,13 +55,13 @@ function Body({ itemDetails, itemFunctions, prod, value }) {
                                         alt="random"
                                         sx={{ height: '100%', width: '100%', objectFit: 'contain' }}
                                     />
-                                    <Chip variant='contained' style={{ width:'40%', marginTop: -60, backgroundColor: 'black', color: 'white' }}label={
+                                    <Chip variant='contained' style={{ width: '40%', marginTop: -60, backgroundColor: 'black', color: 'white' }} label={
                                         <Typography>
                                             £{Number.parseFloat(item.price).toFixed(2)}
                                         </Typography>
                                     }></Chip>
                                 </CardContent>
-                                    
+
                                 <CardContent sx={{ flexGrow: 1, display: 'block' }}>
                                     <Typography gutterBottom variant="p" component="h4">
                                         {item.title}
@@ -55,7 +70,7 @@ function Body({ itemDetails, itemFunctions, prod, value }) {
                                         {item.category}
                                     </Typography>
                                 </CardContent>
-                                <CardActions style={{ justifyContent:'center' }}>
+                                <CardActions style={{ justifyContent: 'center' }}>
                                     <Button color='success' variant='contained' size="small" onClick={() => value.dispatch({ type: 'ADD_ITEM', payload: item })}>
                                         Add to Cart
                                     </Button>

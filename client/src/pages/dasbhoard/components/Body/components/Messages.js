@@ -29,6 +29,7 @@ const Messages = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 height: '100%',
+                marginTop: 35,
             }}>
                 <Typography variant='subtitle2'>NO MESSAGES TO DISPLAY</Typography>
             </Box>
