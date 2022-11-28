@@ -100,7 +100,10 @@ export default function Navbar() {
       </Link>
 
       {/* Logout button */}
-      <ListItemButton button component="a" href='/'>
+      <ListItemButton button component="a" href='/' onClick={() => {
+          localStorage.clear()
+          window.location.reload(false)
+          }}>
         <ListItemIcon>
           <LogoutIcon />
         </ListItemIcon>

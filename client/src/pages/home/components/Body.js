@@ -17,6 +17,7 @@ function Body({ itemDetails, itemFunctions, prod, value }) {
         const loadItems = async () => {
             const response = await api.get('/api/items-list')
             setItems(response.data)
+            console.log(localStorage.getItem('user'));
         }
         loadItems()
     }, [])

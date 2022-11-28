@@ -74,6 +74,7 @@ const deleteUser = async (req, res) => {
 const userLogin = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
+
   const matchPasswords = bcrypt.compare(password, user.password);
   if (matchPasswords) {
     const payload = {
@@ -87,15 +88,69 @@ const userLogin = async (req, res) => {
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: 86400 },
     )
+    // const refreshToken = jwt.sign(
+    //   payload,
+    //   process.env.REFRESH_TOKEN_SECRET,
+    //   { expiresIn: '1d' },
+    // )
+    // res.cookie('jwt', refreshToken, {
+    //   httpOnly: true,
+    //   secure: true,
+    //   sameSite: 'None',
+    //   maxAge: 7 * 24 * 60 * 60 * 1000
+    // })
     res.status(200).json({auth: true, accessToken, payload })
   } else {
     return res.status(401).json("The email or password entered are incorrect.");
   }
 };
 
-const userAuthentication = (req, res) => {
-  res.status(200).json({ isLoggedIn: true, user: req.user.email })
-}
+// const refreshUserToken = (req, res) => {
+//   const cookies = req.cookies
+
+//   if (!cookies?.jwt) return res.status(401).json({ message: 'Unauthorized' })
+
+//   const refreshToken = cookies.jwt
+
+//   jwt.verify(
+//     refreshToken,
+//     process.env.REFRESH_TOKEN_SECRET,
+//     asyncHandler(async (err, decoded) => {
+//       if (err) return res.status(403).json({ message: 'Forbidden' })
+
+//       const foundUser = await User.findOne({ email: decoded.email })
+
+//       if (!foundUser) return res.status(401).json({ message: 'Unauthorized'  })
+
+//       const accessToken = jwt.sign(
+//         {
+//           'UserInfo': {
+//               'username': foundUser.email,
+//               'type': foundUser.type,
+//               'firstName': foundUser.firstName
+//           }
+//         },
+//         process.env.ACCESS_TOKEN_SECRET,
+//         { expiresIn: '10s' }
+//       )
+
+//         res.json({ accessToken })  
+
+//     })
+//   )
+
+// }
+
+// const userLogout = (req, res) => {
+//   const cookies = req.cookies
+//   if (!cookies?.jwt) return res.sendStatus(204)
+//   res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true })
+//   res.json({ message: 'Cookie cleared' })
+// }
+
+// const userAuthentication = (req, res) => {
+//   res.status(200).json({ isLoggedIn: true, user: req.user.email })
+// }
 
 
 
@@ -106,5 +161,6 @@ module.exports = {
   updateUser,
   deleteUser,
   userLogin,
-  userAuthentication
+  // refreshUserToken,
+  // userLogout
 };
