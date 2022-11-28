@@ -74,7 +74,7 @@ const deleteUser = async (req, res) => {
 const userLogin = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
-  const matchPasswords = await bcrypt.compare(password, user.password);
+  const matchPasswords = bcrypt.compare(password, user.password);
   if (matchPasswords) {
     const payload = {
       id: user._id,

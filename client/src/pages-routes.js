@@ -1,7 +1,5 @@
 import React from "react";
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
 import Dashboard from "./pages/dasbhoard/Dashboard";
 import Home from "./pages/home/Home";
 import Login from "./pages/login/Login";
@@ -47,15 +45,26 @@ export default function PagesRoutes() {
         <Route path="sign-up" element={<SignUp />} />
         <Route path="unauthorized" element={<Unauthorized />} />
 
-        {/* <Route path="/*" element={<ProtectedRoute />}> */}
+        {/* <Route path="/*" element={<ProtectedRoute allowedRoles={["Admin", "Staff", "User"]} />}>
           <Route path="dashboard" element={<Dashboard />}>
             <Route path="messages" element={<Messages />} />
             <Route path="orders" element={<Orders />} />
-            <Route path="items-list" element={<Items />} />
-            <Route path="users-list" element={<Users />} />
             <Route path="settings" element={<Settings />} />
           </Route>
-        {/* </Route> */}
+          <Route path="/*" element={<ProtectedRoute allowedRoles={["Admin", "Staff"]} />}>
+            <Route path="items-list" element={<Items />} />
+          </Route>
+          <Route path="/*" element={<ProtectedRoute allowedRoles={["Admin"]} />}>
+            <Route path="users-list" element={<Users />} />
+          </Route> */}
+
+        <Route path="dashboard" element={<Dashboard />}>
+          <Route path="messages" element={<Messages />} />
+          <Route path="orders" element={<Orders />} />
+          <Route path="items-list" element={<Items />} />
+          <Route path="users-list" element={<Users />} />
+          <Route path="settings" element={<Settings />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
