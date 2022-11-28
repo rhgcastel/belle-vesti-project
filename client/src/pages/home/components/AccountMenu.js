@@ -90,13 +90,17 @@ export default function AccountMenu() {
           Settings
         </MenuItem>
         </Link>
-        
-        <MenuItem>
+
+        <MenuItem onClick={() => {
+          localStorage.clear()
+          window.location.reload(false)
+          }}>
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>
           Logout
         </MenuItem>
+
       </Menu>
     </React.Fragment>
   );
