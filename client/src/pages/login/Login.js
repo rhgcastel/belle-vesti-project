@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom'
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -16,7 +16,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import api from '../../services/api';
 import { warningBox } from '../components/WarningBox';
 import Copyright from '../components/Copyright';
-import useAuth from '../../hooks/useAuth';
+// import useAuth from '../../hooks/useAuth';
 
 const theme = createTheme({
   palette: {
@@ -32,16 +32,12 @@ export default function Login({ setToken }) {
   const [password, setPassword] = useState();
   const [showPassword, setShowPassword] = useState(false);
   const [checked, setChecked] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  // const [isLoggedIn, setIsLoggedIn] = useState(false)
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/';
 
-  const { setAuth } = useAuth();
-
-  // useEffect(() => {
-  //   if(!isLoggedIn && localStorage.getItem('&token') !== null) {
-  //     navigate(-1)
-  //   }
-  // }, [isLoggedIn, navigate])
+  // const { setAuth } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -51,16 +47,16 @@ export default function Login({ setToken }) {
       const response = await api.post('/api/user/login', loginData, { headers: { 'Content-type': 'application/json' } })
       console.log(response)
       warningBox(`Welcome ${response.data.payload.first_name}`)
-      localStorage.setItem('&token', response.data.accessToken)
-      setIsLoggedIn(true)
-      navigate(-1)
+      // localStorage.setItem('user', response.data.accessToken)
+      // setIsLoggedIn(true)
+      navigate(from, { replace: true });
     } catch (err) {
       warningBox(err.response.data)
     }
   };
 
   const handleChange = (e) => {
-    setChecked(e.target.checked); 
+    setChecked(e.target.checked);
     !checked ? setShowPassword(true) : setShowPassword(false)
   };
 

@@ -27,14 +27,14 @@ function Body({ itemDetails, itemFunctions, prod, value }) {
             {items.length <= 0 &&
                 <div style={{
                     "position": "relative",
-                    "margin-top": 50,
+                    "marginTop": 50,
                     "left": 0,
                     "top": 0,
                     "right": 0,
                     "bottom": 0,
                     "display": "flex", 
-                    "justify-content": "center", 
-                    "align-items": "center"
+                    "justifyContent": "center", 
+                    "alignItems": "center"
                 }}>
                     <img src='https://upload.wikimedia.org/wikipedia/commons/9/92/Loading_icon_cropped.gif' alt='Loading'></img>
                 </div>}
