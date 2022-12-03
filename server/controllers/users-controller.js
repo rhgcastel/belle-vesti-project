@@ -75,34 +75,40 @@ const userLogin = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
 
-  const matchPasswords = bcrypt.compare(password, user.password);
-  if (matchPasswords) {
-    const payload = {
-      id: user._id,
-      email: user.email,
-      first_name: user.firstName,
-      type: user.type
+  if (!user) return res.status(401).json("The email or password entered are incorrect.")
+
+  const matchPasswords = bcrypt.compare(password, user.password, (err, response) => {
+    if (err) {
+      return err
+    } if (response) {
+      const payload = {
+        id: user._id,
+        email: user.email,
+        first_name: user.firstName,
+        type: user.type
+      }
+      const accessToken = jwt.sign(
+        payload,
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: 86400 },
+      )
+      res.status(200).json({ auth: true, accessToken, payload })
+    } else {
+      return res.status(401).json("The email or password entered are incorrect.");
     }
-    const accessToken = jwt.sign(
-      payload,
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: 86400 },
-    )
-    // const refreshToken = jwt.sign(
-    //   payload,
-    //   process.env.REFRESH_TOKEN_SECRET,
-    //   { expiresIn: '1d' },
-    // )
-    // res.cookie('jwt', refreshToken, {
-    //   httpOnly: true,
-    //   secure: true,
-    //   sameSite: 'None',
-    //   maxAge: 7 * 24 * 60 * 60 * 1000
-    // })
-    res.status(200).json({auth: true, accessToken, payload })
-  } else {
-    return res.status(401).json("The email or password entered are incorrect.");
-  }
+  })
+
+  // const refreshToken = jwt.sign(
+  //   payload,
+  //   process.env.REFRESH_TOKEN_SECRET,
+  //   { expiresIn: '1d' },
+  // )
+  // res.cookie('jwt', refreshToken, {
+  //   httpOnly: true,
+  //   secure: true,
+  //   sameSite: 'None',
+  //   maxAge: 7 * 24 * 60 * 60 * 1000
+  // })
 };
 
 // const refreshUserToken = (req, res) => {
