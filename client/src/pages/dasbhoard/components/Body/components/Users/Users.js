@@ -35,9 +35,9 @@ export default function Users() {
       "top": 0,
       "right": 0,
       "bottom": 0,
-      "justify-content": "center",
+      "justifyContent": "center",
       "display": "flex",
-      "align-items": "center",
+      "alignItems": "center",
     }}>
       <img style={{ width: "50%" }} src='https://upload.wikimedia.org/wikipedia/commons/9/92/Loading_icon_cropped.gif' alt='Loading'></img>
     </div>)
@@ -55,6 +55,8 @@ export default function Users() {
 
   //Certify that only one user was selected to be edited
   const handleEdit = (id, user) => {
+    console.log(localStorage.getItem('userEmail') === (userSelected.find(e => e.email === localStorage.getItem('userEmail'))).email)
+    console.log(userSelected.find(e => e.email === localStorage.getItem('userEmail')).email)
     id.length < 1 && warningBox("Please, first select the user to be edited.");
     id.length === 1
       ? getSelectedUser(id, user)
@@ -71,91 +73,92 @@ export default function Users() {
 
   //Handle deletion after confirmation
   const confirmDeletion = () => {
+    console.log(localStorage.getItem("userEmail"))
     const apiDel = async (newId) => {
       await api.delete(`/api/user/${newId}`);
       selection.length > 1
         ? warningBox(`${selection.length} users deleted.`)
         : warningBox('User deleted.')
-      return setTimeout(window.location.reload.bind(window.location), 1800);
-    };
-    selection.length > 1
-      ? selection.map(e => apiDel(e))
-      : apiDel(selection)
+    }
+    setTimeout(window.location.reload.bind(window.location), 1800);
+selection.length > 1
+  ? selection.map(e => apiDel(e))
+  : apiDel(selection)
   }
 
-  const columns = [
-    { field: 'lastName', headerName: 'Last name', width: 200 },
-    { field: 'firstName', headerName: 'First name', width: 200 },
-    { field: 'email', headerName: 'Email Address', width: 350 },
-    { field: 'type', headerName: 'Type', width: 80 },
-    { field: 'creationDate', headerName: 'Created At', width: 200 },
-    { field: 'updateDate', headerName: 'Last Update', width: 200 },
-    { field: 'id', headerName: 'Id', width: 250 },
-  ];
+const columns = [
+  { field: 'lastName', headerName: 'Last name', width: 200 },
+  { field: 'firstName', headerName: 'First name', width: 200 },
+  { field: 'email', headerName: 'Email Address', width: 350 },
+  { field: 'type', headerName: 'Type', width: 80 },
+  { field: 'creationDate', headerName: 'Created At', width: 200 },
+  { field: 'updateDate', headerName: 'Last Update', width: 200 },
+  { field: 'id', headerName: 'Id', width: 250 },
+];
 
-  const rows = users.map((row) => ({
-    lastName: row.lastName,
-    firstName: row.firstName,
-    email: row.email,
-    type: row.type,
-    creationDate: new Date(row.createdAt).toLocaleString('en-GB'),
-    updateDate: new Date(row.updatedAt).toLocaleString('en-GB'),
-    id: row._id,
-  }))
+const rows = users.map((row) => ({
+  lastName: row.lastName,
+  firstName: row.firstName,
+  email: row.email,
+  type: row.type,
+  creationDate: new Date(row.createdAt).toLocaleString('en-GB'),
+  updateDate: new Date(row.updatedAt).toLocaleString('en-GB'),
+  id: row._id,
+}))
 
-  const CustomNoRowsOverlay = () => {
-    return (
-      <Box style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100%',
-        marginTop: 35,
-      }}>
-        {loadingMessage}
-      </Box>
-
-    )
-  }
-
+const CustomNoRowsOverlay = () => {
   return (
-    <div sx={{ height: '100%', width: "100%" }}>
-      <Typography variant='h4' style={{ textAlign: 'center' }}>Users</Typography>
-      <UserEditModal ref={openModalRef} selection={userSelected} />
+    <Box style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100%',
+      marginTop: 35,
+    }}>
+      {loadingMessage}
+    </Box>
 
-      <DataGrid
-        components={{
-          NoRowsOverlay: CustomNoRowsOverlay,
-        }}
-        autoHeight="true"
-        rows={rows}
-        columns={columns}
-        pageSize={10}
-        rowsPerPageOptions={[10]}
-        checkboxSelection
-        getRowHeight={() => 'auto'}
-        onSelectionModelChange={newSelection => {
-          setSelection(newSelection);
-        }}
-      />
-      <IconButton><RefreshIcon onClick={() => window.location.reload()} /></IconButton>
-      <div style={{ float: "right", marginTop: 10, }}>
-        <Button
-          variant="contained"
-          onClick={() => handleEdit(selection, users)}
-          style={{ marginRight: 10 }}
-        >
-          Edit
-        </Button>
+  )
+}
 
-        <Button
-          variant="contained"
-          onClick={() => handleDeleteUser(selection)}
-        >
-          Delete
-        </Button>
-      </div>
+return (
+  <div sx={{ height: '100%', width: "100%" }}>
+    <Typography variant='h4' style={{ textAlign: 'center' }}>Users</Typography>
+    <UserEditModal ref={openModalRef} selection={userSelected} />
+
+    <DataGrid
+      components={{
+        NoRowsOverlay: CustomNoRowsOverlay,
+      }}
+      autoHeight="true"
+      rows={rows}
+      columns={columns}
+      pageSize={10}
+      rowsPerPageOptions={[10]}
+      checkboxSelection
+      getRowHeight={() => 'auto'}
+      onSelectionModelChange={newSelection => {
+        setSelection(newSelection);
+      }}
+    />
+    <IconButton><RefreshIcon onClick={() => window.location.reload()} /></IconButton>
+    <div style={{ float: "right", marginTop: 10, }}>
+      <Button
+        variant="contained"
+        onClick={() => handleEdit(selection, users)}
+        style={{ marginRight: 10 }}
+      >
+        Edit
+      </Button>
+
+      <Button
+        variant="contained"
+        onClick={() => handleDeleteUser(selection)}
+      >
+        Delete
+      </Button>
     </div>
-  );
+  </div>
+);
 }

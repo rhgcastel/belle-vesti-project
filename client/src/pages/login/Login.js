@@ -45,9 +45,9 @@ export default function Login({ setToken }) {
     const loginData = { email, password }
     try {
       const response = await api.post('/api/user/login', loginData, { headers: { 'Content-type': 'application/json' } })
-      console.log(response)
       warningBox(`Welcome ${response.data.payload.first_name}`)
       localStorage.setItem('token', response.data.accessToken)
+      localStorage.setItem('userEmail', response.data.payload.email)
       // setIsLoggedIn(true)
       navigate(from, { replace: true });
     } catch (err) {
