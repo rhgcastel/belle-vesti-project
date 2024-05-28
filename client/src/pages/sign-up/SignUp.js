@@ -13,6 +13,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import api from '../../services/api';
 import { warningBox } from '../components/WarningBox';
 import Copyright from '../components/Copyright';
+import { useNavigate } from 'react-router-dom';
 
 const theme = createTheme({
   palette: {
@@ -23,43 +24,65 @@ const theme = createTheme({
   }
 });
 
-export default function SignUp() {
+const SignUp = () => {
+  const navigate = useNavigate();
   const [newUser, setNewUser] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
     confirmation: ''
-  })
+  });
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setNewUser((prevState) => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const validate = () => {
+    const { firstName, lastName, email, password, confirmation } = newUser;
+    if (!firstName || !lastName || !email || !password) {
+      return 'Please, fill in all the fields.';
+    }
+    if (firstName.length < 2 || lastName.length < 2) {
+      return 'First and last names should be more than 1 letter.';
+    }
+    if (/[0-9]$/.test(firstName) || /[0-9]$/.test(lastName)) {
+      return 'First and last names should only contain letters.';
+    }
+    if (password !== confirmation) {
+      return 'Passwords do not match.';
+    }
+    return null;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = newUser;
-    if (!newUser.firstName || !newUser.lastName || !newUser.email || !newUser.password)
-      return warningBox("Please, fill in all the fields.");
-    if (newUser.firstName.length < 2 || newUser.lastName.length < 2)
-      return warningBox('First and last names should be more than 1 letter.')
-    if ((/[0-9]$/.test(newUser.firstName)) || (/[0-9]$/.test(newUser.lastName)))
-      return warningBox('First and last names should only contain letters.')
-    if (newUser.confirmation !== newUser.password)
-      return warningBox("Passwords do not match.");
+    const error = validate();
+    if (error) {
+      return warningBox(error);
+    }
     try {
-      const response = await api.post("/api/user", data);
+      const response = await api.post("/api/user", newUser);
       warningBox(response.data);
-      return setNewUser({
+      setNewUser({
         firstName: '',
         lastName: '',
         email: '',
         password: '',
         confirmation: ''
-      })
+      });
+      setTimeout(() => {
+        navigate(-1);
+      }, 2000);
     } catch (err) {
-      warningBox(err.response.data);
+      const message = err.response?.data || 'An error occurred. Please try again.';
+      warningBox(message);
     }
-  }
-
-
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -79,18 +102,18 @@ export default function SignUp() {
           <Typography component='h1' variant='h5'>
             Sign up
           </Typography>
-          <Box component='form' sx={{ mt: 3 }}>
+          <Box component='form' onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
                   name='firstName'
                   required
                   fullWidth
-                  id="outlined-error"
+                  id='firstName'
                   label='First Name'
                   autoComplete='given-name'
                   value={newUser.firstName}
-                  onChange={e => setNewUser({ ...newUser, firstName: e.target.value })}
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -102,7 +125,7 @@ export default function SignUp() {
                   name='lastName'
                   autoComplete='family-name'
                   value={newUser.lastName}
-                  onChange={e => setNewUser({ ...newUser, lastName: e.target.value  })}
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -114,7 +137,7 @@ export default function SignUp() {
                   name='email'
                   autoComplete='email'
                   value={newUser.email}
-                  onChange={e => setNewUser({ ...newUser, email: e.target.value  })}
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -127,7 +150,7 @@ export default function SignUp() {
                   id='password'
                   autoComplete='new-password'
                   value={newUser.password}
-                  onChange={e => setNewUser({ ...newUser, password: e.target.value   })}
+                  onChange={handleChange}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -139,12 +162,11 @@ export default function SignUp() {
                   type='password'
                   id='confirmation'
                   value={newUser.confirmation}
-                  onChange={e => setNewUser({ ...newUser, confirmation: e.target.value   })}
+                  onChange={handleChange}
                 />
               </Grid>
             </Grid>
             <Button
-              onClick={handleSubmit}
               type='submit'
               fullWidth
               variant='contained'
@@ -154,7 +176,7 @@ export default function SignUp() {
             </Button>
             <Grid container justifyContent='flex-end'>
               <Grid item>
-                <Link href='login' variant='body2'>
+                <Link href='/login' variant='body2'>
                   Already have an account? Login
                 </Link>
               </Grid>
@@ -165,4 +187,6 @@ export default function SignUp() {
       </Container>
     </ThemeProvider>
   );
-}
+};
+
+export default SignUp;

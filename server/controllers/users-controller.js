@@ -1,8 +1,10 @@
-const User = require('../models/user-model')
+const User = require('../models/user-model');
 const emailValidator = require("email-validator");
 const passwordValidator = require('password-validator');
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
+
+require('dotenv').config(); // Ensure environment variables are loaded
 
 const passwordSchema = new passwordValidator();
 
@@ -12,9 +14,9 @@ passwordSchema
   .has().uppercase()
   .has().lowercase()
   .has().digits(2)
-  .has().not().spaces()
+  .has().not().spaces();
 
-//Create an user
+// Create a user
 const createUser = async (req, res) => {
   const { firstName, lastName, email, type, password } = req.body;
   let user = await User.findOne({ email });
@@ -26,139 +28,134 @@ const createUser = async (req, res) => {
     return res.status(400).json(
       "Password must contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, 2 digits, and no spaces."
     );
-  let data = { firstName, lastName, email, type, password };
+  const hashedPassword = await bcrypt.hash(password, 10); // Hash the password before saving
+  let data = { firstName, lastName, email, type, password: hashedPassword };
   await User.create(data);
-  return res.status(201).json('New user successfully created.')
+  return res.status(201).json('New user successfully created.');
 };
 
-//Request a list with all the registered users
+// Request a list with all the registered users
 const getUsersList = async (req, res) => {
   try {
     const usersList = await User.find();
-    res.json(usersList)
+    res.json(usersList);
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: err.message });
   }
 };
 
-//Request an user information
+// Request a user's information
 const getUser = async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) return res.status(404).json("User not found.");
   return res.status(200).json(user);
 };
 
-//Update an user information
+// Update a user's information
 const updateUser = async (req, res) => {
   const { firstName, lastName, type, password } = req.body;
-  const data = { firstName, lastName, type, password };
+  const hashedPassword = await bcrypt.hash(password, 10); // Hash the password before updating
+  const data = { firstName, lastName, type, password: hashedPassword };
   const updatedData = await User.findByIdAndUpdate(req.params.id, data, {
     new: true,
   });
-  if (!updatedData) return res.status(404).json("Id not found.")
+  if (!updatedData) return res.status(404).json("Id not found.");
   return res.status(200).json(updatedData);
 };
 
-//Delete an user
+// Delete a user
 const deleteUser = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
     if (user) return res.status(200).json('User deleted.');
-    return res.status(404).json('Id not found.')
+    return res.status(404).json('Id not found.');
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: err.message });
   }
 };
 
-//Handle user login
+// Generate Access and Refresh Tokens
+const generateAccessToken = (user) => {
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+};
+
+const generateRefreshToken = (user) => {
+  return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+};
+
+// Handle user login
 const userLogin = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
 
-  if (!user) return res.status(401).json("The email or password entered are incorrect.")
+  if (!user) return res.status(401).json("The email or password entered are incorrect.");
 
-  const matchPasswords = bcrypt.compare(password, user.password, (err, response) => {
-    if (err) {
-      return err
-    } if (response) {
-      const payload = {
-        id: user._id,
-        email: user.email,
-        first_name: user.firstName,
-        type: user.type
-      }
-      const accessToken = jwt.sign(
-        payload,
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: 86400 },
-      )
-      res.status(200).json({ auth: true, accessToken, payload })
-    } else {
-      return res.status(401).json("The email or password entered are incorrect.");
-    }
-  })
+  const matchPasswords = await bcrypt.compare(password, user.password);
+  if (matchPasswords) {
+    const payload = {
+      id: user._id,
+      email: user.email,
+      first_name: user.firstName,
+      type: user.type,
+    };
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken(payload);
+    
+    // Save the refresh token with the user
+    user.refreshToken = refreshToken;
+    await user.save();
 
-  // const refreshToken = jwt.sign(
-  //   payload,
-  //   process.env.REFRESH_TOKEN_SECRET,
-  //   { expiresIn: '1d' },
-  // )
-  // res.cookie('jwt', refreshToken, {
-  //   httpOnly: true,
-  //   secure: true,
-  //   sameSite: 'None',
-  //   maxAge: 7 * 24 * 60 * 60 * 1000
-  // })
+    res.cookie('jwt', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    res.status(200).json({ auth: true, accessToken, payload });
+  } else {
+    return res.status(401).json("The email or password entered are incorrect.");
+  }
 };
 
-// const refreshUserToken = (req, res) => {
-//   const cookies = req.cookies
+// Refresh access token
+const refreshUserToken = (req, res) => {
+  const cookies = req.cookies;
 
-//   if (!cookies?.jwt) return res.status(401).json({ message: 'Unauthorized' })
+  if (!cookies?.jwt) return res.status(401).json({ message: 'Unauthorized' });
 
-//   const refreshToken = cookies.jwt
+  const refreshToken = cookies.jwt;
 
-//   jwt.verify(
-//     refreshToken,
-//     process.env.REFRESH_TOKEN_SECRET,
-//     asyncHandler(async (err, decoded) => {
-//       if (err) return res.status(403).json({ message: 'Forbidden' })
+  jwt.verify(
+    refreshToken,
+    process.env.REFRESH_TOKEN_SECRET,
+    async (err, decoded) => {
+      if (err) return res.status(403).json({ message: 'Forbidden' });
 
-//       const foundUser = await User.findOne({ email: decoded.email })
+      const foundUser = await User.findOne({ email: decoded.email });
 
-//       if (!foundUser) return res.status(401).json({ message: 'Unauthorized'  })
+      if (!foundUser || foundUser.refreshToken !== refreshToken) return res.status(401).json({ message: 'Unauthorized' });
 
-//       const accessToken = jwt.sign(
-//         {
-//           'UserInfo': {
-//               'username': foundUser.email,
-//               'type': foundUser.type,
-//               'firstName': foundUser.firstName
-//           }
-//         },
-//         process.env.ACCESS_TOKEN_SECRET,
-//         { expiresIn: '10s' }
-//       )
+      const payload = {
+        id: foundUser._id,
+        email: foundUser.email,
+        first_name: foundUser.firstName,
+        type: foundUser.type,
+      };
+      const accessToken = generateAccessToken(payload);
 
-//         res.json({ accessToken })  
+      res.json({ accessToken });
+    }
+  );
+};
 
-//     })
-//   )
-
-// }
-
-// const userLogout = (req, res) => {
-//   const cookies = req.cookies
-//   if (!cookies?.jwt) return res.sendStatus(204)
-//   res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true })
-//   res.json({ message: 'Cookie cleared' })
-// }
-
-// const userAuthentication = (req, res) => {
-//   res.status(200).json({ isLoggedIn: true, user: req.user.email })
-// }
-
-
+// Logout user
+const userLogout = (req, res) => {
+  const cookies = req.cookies;
+  if (!cookies?.jwt) return res.sendStatus(204);
+  res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true });
+  res.json({ message: 'Cookie cleared' });
+};
 
 module.exports = {
   createUser,
@@ -167,6 +164,6 @@ module.exports = {
   updateUser,
   deleteUser,
   userLogin,
-  // refreshUserToken,
-  // userLogout
+  refreshUserToken,
+  userLogout,
 };

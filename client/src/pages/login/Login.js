@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -28,11 +28,10 @@ const theme = createTheme({
 });
 
 export default function Login({ setToken }) {
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [checked, setChecked] = useState(false);
-  // const [isLoggedIn, setIsLoggedIn] = useState(false)
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
@@ -41,23 +40,25 @@ export default function Login({ setToken }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    (!email || !password) && warningBox('Please, fill in all the fields.')
-    const loginData = { email, password }
+    if (!email || !password) {
+      return warningBox('Please, fill in all the fields.');
+    }
+    const loginData = { email, password };
     try {
-      const response = await api.post('/api/user/login', loginData, { headers: { 'Content-type': 'application/json' } })
-      warningBox(`Welcome ${response.data.payload.first_name}`)
-      localStorage.setItem('token', response.data.accessToken)
-      localStorage.setItem('userEmail', response.data.payload.email)
-      // setIsLoggedIn(true)
+      const response = await api.post('/api/user/login', loginData, { headers: { 'Content-type': 'application/json' } });
+      warningBox(`Welcome ${response.data.payload.first_name}`);
+      localStorage.setItem('token', response.data.accessToken);
+      localStorage.setItem('userEmail', response.data.payload.email);
       navigate(from, { replace: true });
     } catch (err) {
-      warningBox(err.response.data)
+      const message = err.response?.data || 'An error occurred. Please try again.';
+      warningBox(message);
     }
   };
 
-  const handleChange = (e) => {
+  const handleCheckboxChange = (e) => {
     setChecked(e.target.checked);
-    !checked ? setShowPassword(true) : setShowPassword(false)
+    setShowPassword(e.target.checked);
   };
 
   return (
@@ -88,6 +89,7 @@ export default function Login({ setToken }) {
               name='email'
               autoComplete='email'
               autoFocus
+              value={email}
               onChange={e => setEmail(e.target.value)}
             />
             <TextField
@@ -99,11 +101,11 @@ export default function Login({ setToken }) {
               type={showPassword ? 'text' : 'password'}
               id='password'
               autoComplete='current-password'
+              value={password}
               onChange={e => setPassword(e.target.value)}
-
             />
             <FormControlLabel
-              control={<Checkbox checked={checked} onChange={handleChange} color='primary' />}
+              control={<Checkbox checked={checked} onChange={handleCheckboxChange} color='primary' />}
               label='Show password'
             />
             <Button

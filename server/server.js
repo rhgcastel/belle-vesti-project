@@ -22,6 +22,6 @@ app.use(express.json());
 app.use(usersRoutes);
 app.use(itemsRoutes);
 
-const listener = app.listen(process.env.PORT || 5000, () => {
+const listener = app.listen(process.env.PORT || 8080, () => {
     console.log(`Your app is listening on port ${listener.address().port}`)
 });
