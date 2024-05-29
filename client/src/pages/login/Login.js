@@ -16,7 +16,6 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import api from '../../services/api';
 import { warningBox } from '../components/WarningBox';
 import Copyright from '../components/Copyright';
-// import useAuth from '../../hooks/useAuth';
 
 const theme = createTheme({
   palette: {
@@ -27,6 +26,12 @@ const theme = createTheme({
   }
 });
 
+const getCookie = (name) => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+};
+
 export default function Login({ setToken }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,8 +41,6 @@ export default function Login({ setToken }) {
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
 
-  // const { setAuth } = useAuth();
-
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
@@ -45,7 +48,16 @@ export default function Login({ setToken }) {
     }
     const loginData = { email, password };
     try {
-      const response = await api.post('/api/user/login', loginData, { headers: { 'Content-type': 'application/json' } });
+      const csrfToken = getCookie('XSRF-TOKEN'); // Retrieve the CSRF token from cookies
+      console.log(csrfToken);
+      const response = await api.post("/api/user/login", loginData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'CSRF-Token': csrfToken // Include the CSRF token in the headers
+        },
+        withCredentials: true // Include credentials in the request
+      });
+      console.log(response.data);
       warningBox(`Welcome ${response.data.payload.first_name}`);
       localStorage.setItem('token', response.data.accessToken);
       localStorage.setItem('userEmail', response.data.payload.email);

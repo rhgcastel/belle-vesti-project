@@ -24,6 +24,12 @@ const theme = createTheme({
   }
 });
 
+const getCookie = (name) => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+};
+
 const SignUp = () => {
   const navigate = useNavigate();
   const [newUser, setNewUser] = useState({
@@ -33,6 +39,7 @@ const SignUp = () => {
     password: '',
     confirmation: ''
   });
+  const [errors, setErrors] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -66,7 +73,15 @@ const SignUp = () => {
       return warningBox(error);
     }
     try {
-      const response = await api.post("/api/user", newUser);
+      const csrfToken = getCookie('XSRF-TOKEN'); // Retrieve the CSRF token from cookies
+      console.log(csrfToken);
+      const response = await api.post("/api/user", newUser, {
+        headers: {
+          'Content-Type': 'application/json',
+          'CSRF-Token': csrfToken
+        },
+        withCredentials: true // Include credentials in the request
+      });
       warningBox(response.data);
       setNewUser({
         firstName: '',
@@ -79,9 +94,13 @@ const SignUp = () => {
         navigate(-1);
       }, 2000);
     } catch (err) {
-      const message = err.response?.data || 'An error occurred. Please try again.';
-      warningBox(message);
+      if (err.response && err.response.data && err.response.data.errors) {
+        setErrors(err.response.data.errors);
+      } else {
+        const message = err.response?.data || 'An error occurred. Please try again.';
+        warningBox(message);
     }
+  }
   };
 
   return (

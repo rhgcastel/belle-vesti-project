@@ -31,6 +31,7 @@ const createUser = async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10); // Hash the password before saving
   let data = { firstName, lastName, email, type, password: hashedPassword };
   await User.create(data);
+  console.log(data);
   return res.status(201).json('New user successfully created.');
 };
 
@@ -85,13 +86,18 @@ const generateRefreshToken = (user) => {
 
 // Handle user login
 const userLogin = async (req, res) => {
+  console.log('userLogin function hit');
+  console.log(req.body);
+  console.log(res.body);
   const { email, password } = req.body;
   const user = await User.findOne({ email });
+  console.log(user);
 
   if (!user) return res.status(401).json("The email or password entered are incorrect.");
 
   const matchPasswords = await bcrypt.compare(password, user.password);
   if (matchPasswords) {
+    console.log(matchPasswords);
     const payload = {
       id: user._id,
       email: user.email,
@@ -107,7 +113,7 @@ const userLogin = async (req, res) => {
 
     res.cookie('jwt', refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'None',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
@@ -118,6 +124,7 @@ const userLogin = async (req, res) => {
   }
 };
 
+
 // Refresh access token
 const refreshUserToken = (req, res) => {
   const cookies = req.cookies;
@@ -125,6 +132,7 @@ const refreshUserToken = (req, res) => {
   if (!cookies?.jwt) return res.status(401).json({ message: 'Unauthorized' });
 
   const refreshToken = cookies.jwt;
+  console.log(refreshToken);
 
   jwt.verify(
     refreshToken,
