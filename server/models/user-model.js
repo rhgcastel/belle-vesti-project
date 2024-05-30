@@ -6,17 +6,11 @@ const UserSchema = new mongoose.Schema({
   lastName: { type: String },
   email: { type: String },
   type: { type: String, default: 'User' },
-  password: { type: String }
-},{
-    timestamps:true
+  password: { type: String, required: true, unique: false, maxlength: 60 }
+}, {
+  timestamps: true
 });
 
-//Encrypt the password created
-UserSchema.pre('save', function(next) {
-    !this.isModified("password") ? next() :
-    this.password = bcrypt.hashSync(this.password, 10);
-    next();
-});
 
-const user = mongoose.model('User', UserSchema);
-module.exports = user;
+const User = mongoose.model('User', UserSchema);
+module.exports = User;

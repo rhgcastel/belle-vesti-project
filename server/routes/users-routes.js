@@ -6,7 +6,7 @@ const { validateCreateUser } = require('../middlewares/validator');
 router.post('/api/user', validateCreateUser, createUser);
 router.get('/api/users-list', getUsersList);
 router.get('/api/user/:id', getUser);
-router.put('/api/user/:id', validateCreateUser, updateUser);
+router.put('/api/user/:id', updateUser);
 router.delete('/api/user/:id', deleteUser);
 router.post('/api/user/login', userLogin);
 router.post('/api/user/token', refreshUserToken);

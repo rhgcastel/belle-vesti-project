@@ -19,21 +19,23 @@ passwordSchema
 // Create a user
 const createUser = async (req, res) => {
   const { firstName, lastName, email, type, password } = req.body;
+  console.log('Original password:', password);
   let user = await User.findOne({ email });
-  if (user)
-    return res.status(500).json("This email address is already being used. Try to login instead.");
-  if (!emailValidator.validate(email))
-    return res.status(400).json("Please, enter a valid email address.");
-  if (!passwordSchema.validate(req.body.password))
-    return res.status(400).json(
-      "Password must contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, 2 digits, and no spaces."
-    );
-  const hashedPassword = await bcrypt.hash(password, 10); // Hash the password before saving
+  if (user) return res.status(500).json("This email address is already being used. Try to login instead.");
+  if (!emailValidator.validate(email)) return res.status(400).json("Please, enter a valid email address.");
+  if (!passwordSchema.validate(password)) return res.status(400).json("Password must contain at least 8 characters, 1 uppercase letter, 1 lowercase letter, 2 digits, and no spaces.");
+  
+  const hashedPassword = await bcrypt.hash(password, 10);
+  console.log('Hashed password:', hashedPassword);
+  
   let data = { firstName, lastName, email, type, password: hashedPassword };
   await User.create(data);
-  console.log(data);
+  console.log('User data saved:', data);
   return res.status(201).json('New user successfully created.');
 };
+
+
+
 
 // Request a list with all the registered users
 const getUsersList = async (req, res) => {
@@ -52,17 +54,35 @@ const getUser = async (req, res) => {
   return res.status(200).json(user);
 };
 
-// Update a user's information
 const updateUser = async (req, res) => {
   const { firstName, lastName, type, password } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10); // Hash the password before updating
-  const data = { firstName, lastName, type, password: hashedPassword };
-  const updatedData = await User.findByIdAndUpdate(req.params.id, data, {
-    new: true,
-  });
-  if (!updatedData) return res.status(404).json("Id not found.");
-  return res.status(200).json(updatedData);
+  const userId = req.params.id;
+
+  // Find the user to be updated
+  let user = await User.findById(userId);
+  if (!user) return res.status(404).json("User not found.");
+
+  // Update user fields
+  if (firstName) user.firstName = firstName;
+  if (lastName) user.lastName = lastName;
+  if (type) user.type = type;
+
+  // Hash the new password if it is provided
+  if (password) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+  }
+
+  // Save the updated user
+  try {
+    const updatedUser = await user.save();
+    return res.status(200).json(updatedUser);
+  } catch (err) {
+    console.error('Error updating user:', err);
+    return res.status(500).json('Internal server error');
+  }
 };
+
 
 // Delete a user
 const deleteUser = async (req, res) => {
@@ -87,42 +107,67 @@ const generateRefreshToken = (user) => {
 // Handle user login
 const userLogin = async (req, res) => {
   console.log('userLogin function hit');
-  console.log(req.body);
-  console.log(res.body);
+  console.log('Request body:', req.body);
+  
   const { email, password } = req.body;
   const user = await User.findOne({ email });
-  console.log(user);
+  console.log('User found:', user);
 
-  if (!user) return res.status(401).json("The email or password entered are incorrect.");
-
-  const matchPasswords = await bcrypt.compare(password, user.password);
-  if (matchPasswords) {
-    console.log(matchPasswords);
-    const payload = {
-      id: user._id,
-      email: user.email,
-      first_name: user.firstName,
-      type: user.type,
-    };
-    const accessToken = generateAccessToken(payload);
-    const refreshToken = generateRefreshToken(payload);
-    
-    // Save the refresh token with the user
-    user.refreshToken = refreshToken;
-    await user.save();
-
-    res.cookie('jwt', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'None',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-
-    res.status(200).json({ auth: true, accessToken, payload });
-  } else {
+  if (!user) {
+    console.log('User not found');
     return res.status(401).json("The email or password entered are incorrect.");
   }
+
+  // Log the provided password and the stored hashed password
+  console.log('Provided password:', password);
+  console.log('Stored hashed password:', user.password);
+
+  // Use bcrypt.compare with detailed logging
+  bcrypt.compare(password, user.password, (err, match) => {
+    if (err) {
+      console.error('Error during password comparison:', err);
+      return res.status(500).json('Internal server error');
+    }
+    console.log('Password match result:', match);
+    
+    if (match) {
+      console.log('Passwords match');
+      const payload = {
+        id: user._id,
+        email: user.email,
+        first_name: user.firstName,
+        type: user.type,
+      };
+      const accessToken = generateAccessToken(payload);
+      const refreshToken = generateRefreshToken(payload);
+      
+      // Save the refresh token with the user
+      user.refreshToken = refreshToken;
+      user.save()
+        .then(() => {
+          res.cookie('jwt', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'None',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          });
+
+          res.status(200).json({ auth: true, accessToken, payload });
+        })
+        .catch(saveErr => {
+          console.error('Error saving user with refresh token:', saveErr);
+          res.status(500).json('Internal server error');
+        });
+    } else {
+      console.log('Passwords do not match');
+      res.status(401).json("The email or password entered are incorrect.");
+    }
+  });
 };
+
+
+
+
 
 
 // Refresh access token

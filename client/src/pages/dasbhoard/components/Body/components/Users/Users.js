@@ -55,8 +55,6 @@ export default function Users() {
 
   //Certify that only one user was selected to be edited
   const handleEdit = (id, user) => {
-    console.log(localStorage.getItem('userEmail') === (userSelected.find(e => e.email === localStorage.getItem('userEmail'))).email)
-    console.log(userSelected.find(e => e.email === localStorage.getItem('userEmail')).email)
     id.length < 1 && warningBox("Please, first select the user to be edited.");
     id.length === 1
       ? getSelectedUser(id, user)
